@@ -1,0 +1,46 @@
+﻿@model IEnumerable<EstateAgent.Entities.Land>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+From Redis Cache
+@foreach (var item in ViewBag.RedisData)
+{
+    <ol>
+        <li>@item.Title</li>
+    </ol>
+}
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.ActionLink("Update", "Update", new {  id=item.Id }) |
+                <form action="/adminland/remove" method="post" style="display:inline">
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    @*@Html.ActionLink("Remove", "Remove", new { id = item.Id })*@
+                </form>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
