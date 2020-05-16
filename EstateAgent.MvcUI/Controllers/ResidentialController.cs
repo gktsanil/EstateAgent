@@ -25,7 +25,7 @@ namespace EstateAgent.MvcUI.Controllers
             return View(dataList);
         }
 
-        public IActionResult Details(string? id)
+        public IActionResult Details(string id)
         {
             if (id == null)
             {

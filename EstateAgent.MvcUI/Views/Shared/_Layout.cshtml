@@ -22,16 +22,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Residential" asp-action="Index">Residential</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Land" asp-action="Index">Land</a>
-                        </li>
                         <li class="nav-item dropdown" style="float:right">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Admin Issues
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <a class="dropdown-item" asp-controller="AdminResidential" asp-action="Index">Residential</a>
-                                <a class="dropdown-item" asp-controller="AdminLand" asp-action="Index">Land</a>
                             </div>
                         </li>
 
@@ -42,7 +38,6 @@
         </nav>
     </header>
     @RenderSection("ResidentialCarousel", false)
-    @RenderSection("LandCarousel", false)
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

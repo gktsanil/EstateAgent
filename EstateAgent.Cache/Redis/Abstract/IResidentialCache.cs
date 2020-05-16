@@ -8,6 +8,6 @@ namespace EstateAgent.Cache
     public interface IResidentialCache : IRedisService<Residential>
     {
         List<Residential> GetFurnished(string cachekey);
-        public void Remove(string cachekey);
+        void Remove(string cachekey);
     }
 }

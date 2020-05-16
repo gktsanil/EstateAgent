@@ -25,15 +25,8 @@ namespace EstateAgent.MvcUI
         {
            
             services.AddScoped<IResidentialService, ResidentialManager>();
-            services.AddScoped<ILandService, LandManager>();
-
             services.AddScoped<IResidentialDal, MongoResidentialRepo>();
-            services.AddScoped<ILandDal, MongoLandRepo>();
-
             services.AddScoped<IResidentialCache, ResidentialRedisManager>();
-            services.AddScoped<ILandCache, LandRedisManager>();
-
-            
 
             services.AddControllersWithViews();
         }

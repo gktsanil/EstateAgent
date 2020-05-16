@@ -92,7 +92,7 @@ namespace EstateAgent.MvcUI.Controllers
         }
 
         [HttpGet]
-        public ActionResult Update(string? id)
+        public ActionResult Update(string id)
         {
             if (id == null)
             {
