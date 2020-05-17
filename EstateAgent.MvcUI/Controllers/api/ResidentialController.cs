@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using EstateAgent.Business.Abstract;
-using EstateAgent.Cache;
+﻿using EstateAgent.Business.Abstract;
 using EstateAgent.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EstateAgent.MvcUI.Controllers.api
 {
@@ -15,36 +11,33 @@ namespace EstateAgent.MvcUI.Controllers.api
     public class ResidentialController : ControllerBase
     {
         IResidentialService _service;
-        IResidentialCache _cache;
-        public ResidentialController(IResidentialService service, IResidentialCache cache)
+        public ResidentialController(IResidentialService service)
         {
             _service = service;
-            _cache = cache;
         }
 
         [HttpGet]
-        public List<Residential> GetList()
+        public async Task<List<Residential>> Get()
         {
-            var dataList = this._service.GetAll();
-            return dataList;
+            return await _service.GetAllAsync();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<Residential> GetById(string id)
+        {
+            return await _service.GetByIdAsync(id);
         }
 
         [HttpGet]
-        public List<Residential> GetFirstThree()
+        public async Task<List<Residential>> GetFirstThree()
         {
-            var dataList = this._service.GetFirstThree();
-            return dataList;
+            return await _service.GetFirstThreeAsync();
         }
 
         [HttpGet]
-        public List<Residential> GetFurnished()
+        public async Task<List<Residential>> GetFurnished()
         {
-            const string cacheKey = "ResidentialEstate*";
-            //var furnishedList = _service.GetFurnished();
-            var furnishedList = _cache.GetFurnished(cacheKey);
-            return furnishedList;
-        }
-
-        
+            return await _service.GetFurnishedAsync();
+        }        
     }
 }

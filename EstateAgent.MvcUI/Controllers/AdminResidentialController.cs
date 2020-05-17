@@ -7,6 +7,7 @@ using EstateAgent.Business.Abstract;
 using EstateAgent.Cache;
 using EstateAgent.Dal.Concrete;
 using EstateAgent.Entities;
+using EstateAgent.MvcUI.Helper;
 using EstateAgent.MvcUI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,32 +18,23 @@ namespace EstateAgent.MvcUI.Controllers
     public class AdminResidentialController : Controller
     {
         IResidentialService _service;
-        IResidentialCache _cache;
-        TimeSpan setExpiration = new TimeSpan(0, 2, 0);
-        
-        public AdminResidentialController(IResidentialService service, IResidentialCache cache)
+        public AdminResidentialController(IResidentialService service)
         {
             _service = service;
-            _cache = cache;
         }
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            const string cacheKey = "ResidentialEstate*";
-            var redisdata = _cache.GetFurnished(cacheKey);
-            ViewBag.RedisData = redisdata;
-
-            var dataList = _service.GetAll();
+            var dataList = await _service.GetAllAsync();
             return View(dataList);
         }
 
-        [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
-        public ActionResult Create(ModelResidential model, IFormFile[] photos)
+        public async Task<IActionResult> Create(ModelResidential model, IFormFile[] photos)
         {
             if (ModelState.IsValid)
             {
@@ -51,7 +43,7 @@ namespace EstateAgent.MvcUI.Controllers
                     Title = model.Title,
                     Address = model.Address,
                     AgeOfBuilding = model.AgeOfBuilding,
-                    Date = model.Date,
+                    Date = DateTime.Now,
                     Description = model.Description,
                     FloorNumber = model.FloorNumber,
                     Furnished = model.Furnished,
@@ -71,106 +63,95 @@ namespace EstateAgent.MvcUI.Controllers
                     entity.Pictures = new List<string>();
                     foreach (var photo in photos)
                     {
-                        var randomNames = Path.GetRandomFileName();
-                        var fileName = Path.ChangeExtension(randomNames, ".jpg");
+                        var fileName = PictureHelper.GetRandomFileNameWithExtension();
+                        var stream = PictureHelper.FileStreamOperation(fileName);
                         entity.Pictures.Add(fileName);
-                        var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
-                        var stream = new FileStream(path, FileMode.Create);
-                        photo.CopyToAsync(stream);
-
+                        await photo.CopyToAsync(stream);
                     }
                 }
-                _service.Create(entity);
-                _cache.Set(entity.Id.ToString(), entity, setExpiration);
-                return RedirectToAction("Index");
+                var isCreated = await _service.CreateAsync(entity);
+                if (isCreated)
+                    return RedirectToAction("Index");
             }
-            else
-            {
-                return View(model);
-            }
-
-        }
-
-        [HttpGet]
-        public ActionResult Update(string id)
-        {
-            if (id == null)
-            {
-                return null;
-            }
-            var entity = _service.GetById(id);
-            if (entity == null)
-            {
-                return null;
-            }
-            var model = new ModelResidential()
-            {
-                Id = entity.Id.ToString(),
-                Title = entity.Title,
-                Address = entity.Address,
-                AgeOfBuilding = entity.AgeOfBuilding,
-                Date = entity.Date,
-                Description = entity.Description,
-                Furnished = entity.Furnished,
-                NumberOfFloors = entity.NumberOfFloors,
-                NumberOfRooms = entity.NumberOfRooms,
-                Pictures = entity.Pictures,
-                Price = entity.Price,
-                RealEstate = entity.RealEstate,
-                Type = entity.Type,
-                WithinaBuildingComplex = entity.WithinaBuildingComplex
-
-            };
-
             return View(model);
         }
 
+        public async Task<ActionResult> Update(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                var entity = await _service.GetByIdAsync(id);
+                if(entity != null)
+                {
+                    var model = new ModelResidential()
+                    {
+                        Id = entity.Id.ToString(),
+                        Title = entity.Title,
+                        Address = entity.Address,
+                        AgeOfBuilding = entity.AgeOfBuilding,
+                        Date = entity.Date,
+                        Description = entity.Description,
+                        Furnished = entity.Furnished,
+                        NumberOfFloors = entity.NumberOfFloors,
+                        NumberOfRooms = entity.NumberOfRooms,
+                        Pictures = entity.Pictures,
+                        Price = entity.Price,
+                        RealEstate = entity.RealEstate,
+                        Type = entity.Type,
+                        WithinaBuildingComplex = entity.WithinaBuildingComplex
+                    };
+                    return View(model);
+                }
+            }
+            return NotFound();
+        }
+
         [HttpPost]
-        public ActionResult Update(ModelResidential model, IFormFile[] photos)
+        public async Task<ActionResult> Update(ModelResidential model, IFormFile[] photos)
         {
             if (ModelState.IsValid)
             {
-                var entity = _service.GetById(model.Id);
-                if (entity == null)
+                var entity = await _service.GetByIdAsync(model.Id);
+                if (entity != null)
                 {
-                    return null;
+                    entity.Title = model.Title;
+                    entity.Address = model.Address;
+                    entity.AgeOfBuilding = model.AgeOfBuilding;
+                    entity.Date = model.Date;
+                    entity.Description = model.Description;
+                    entity.Furnished = model.Furnished;
+                    entity.NumberOfFloors = model.NumberOfFloors;
+                    entity.NumberOfRooms = model.NumberOfRooms;
+                    entity.Price = model.Price;
+                    entity.RealEstate = model.RealEstate;
+                    entity.Type = model.Type;
+                    entity.WithinaBuildingComplex = model.WithinaBuildingComplex;
+
+                    entity.Pictures = model.Pictures;
+
+                    await _service.UpdateAsync(model.Id, entity);
+                    return RedirectToAction("Index");
                 }
-                entity.Title = model.Title;
-                entity.Address = model.Address;
-                entity.AgeOfBuilding = model.AgeOfBuilding;
-                entity.Date = model.Date;
-                entity.Description = model.Description;
-                entity.Furnished = model.Furnished;
-                entity.NumberOfFloors = model.NumberOfFloors;
-                entity.NumberOfRooms = model.NumberOfRooms;
-                entity.Price = model.Price;
-                entity.RealEstate = model.RealEstate;
-                entity.Type = model.Type;
-                entity.WithinaBuildingComplex = model.WithinaBuildingComplex;
-
-                entity.Pictures = model.Pictures;
-
-
-                _service.Update(model.Id, entity);
-                return RedirectToAction("Index");
+                return NotFound();
             }
             return View(model);
         }
 
         [HttpPost]
-        public ActionResult Remove(string id)
+        public async Task<ActionResult> Remove(string id)
         {
-            const string cacheKey = "ResidentialEstate";
-            var entity = _service.GetById(id);
+            var entity = await _service.GetByIdAsync(id);
             if (entity == null)
             {
                 return null;
             }
-            _service.Delete(entity);
-            _cache.Remove(cacheKey + id);
-            return RedirectToAction("Index");
+            var isDeleted = await _service.DeleteAsync(id);
+            if (isDeleted)
+            {
+                return RedirectToAction("Index");
+            }
+            return NotFound();
+            
         }
-
-
     }
 }

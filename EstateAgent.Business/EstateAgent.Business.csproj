@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EstateAgent.Cache\EstateAgent.Cache.csproj" />
     <ProjectReference Include="..\EstateAgent.Dal\EstateAgent.Dal.csproj" />
     <ProjectReference Include="..\EstateAgent.Entities\EstateAgent.Entities.csproj" />
   </ItemGroup>

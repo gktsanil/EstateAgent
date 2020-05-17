@@ -9,7 +9,7 @@
     <partial name="_ResidentialCarousel" />
 }
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-md-12">
         @foreach (var item in Model)
         {
             <div class="card" style="width: 30%; display:inline-block">
@@ -55,10 +55,7 @@
                 <div class="card-body">
                     <h5 class="card-title">@item.Title</h5>
                     <p class="card-text">@item.Type</p>
-                    <p class="card-text">@item.Price</p>
-                    <p class="card-text">@item.Address</p>
-                    <p class="card-text">@item.NumberOfRooms</p>
-                    <p class="card-text">@item.Date</p>
+                    <p class="card-text">@item.Price TL</p>
                     <a asp-controller="Residential" asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">Details</a>
                 </div>
             </div>

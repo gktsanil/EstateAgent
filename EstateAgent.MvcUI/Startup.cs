@@ -1,13 +1,16 @@
 using EstateAgent.Business.Abstract;
 using EstateAgent.Business.Concrete;
 using EstateAgent.Cache;
+using EstateAgent.Cache.Redis.Abstract;
+using EstateAgent.Cache.Redis.Concrete;
 using EstateAgent.Dal.Abstract;
-using EstateAgent.Dal.Concrete;
+using EstateAgent.Dal.Concrete.MongoDb;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace EstateAgent.MvcUI
 {
@@ -25,8 +28,13 @@ namespace EstateAgent.MvcUI
         {
            
             services.AddScoped<IResidentialService, ResidentialManager>();
-            services.AddScoped<IResidentialDal, MongoResidentialRepo>();
-            services.AddScoped<IResidentialCache, ResidentialRedisManager>();
+            services.AddScoped<IResidentialDal, ResidentialDal>();
+            services.AddScoped<IRedisCacheService, RedisCacheManager>();
+            services.AddScoped<IResidentialRedisCacheService, ResidentialRedisCacheManager>();
+
+            //Binding "MongoDbSettings" which is in appsettings.json to MongoDbSetting model
+            services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDb_EstateAgent"));
+            services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
             services.AddControllersWithViews();
         }

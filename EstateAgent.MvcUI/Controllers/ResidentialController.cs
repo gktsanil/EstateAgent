@@ -13,36 +13,31 @@ namespace EstateAgent.MvcUI.Controllers
     public class ResidentialController : Controller
     {
         IResidentialService _service;
-        IResidentialCache _cache;
-        public ResidentialController(IResidentialService service, IResidentialCache cache)
+        public ResidentialController(IResidentialService service)
         {
             _service = service;
-            _cache = cache;
         }
         public IActionResult Index()
         {
-            var dataList = _service.GetAll();
+            var dataList =  _service.GetAll();
             return View(dataList);
         }
 
         public IActionResult Details(string id)
         {
-            if (id == null)
+            if (!string.IsNullOrEmpty(id))
             {
-                return NotFound();
+                var residential = _service.GetById(id);
+                if (residential != null)
+                {
+                    var model = new ModelResidentialDetails()
+                    {
+                        Residential = residential
+                    };
+                    return View(model);
+                }
             }
-            var residential = _service.GetById(id);
-            if (residential == null)
-            {
-                return NotFound();
-            }
-            var model = new ModelResidentialDetails()
-            {
-                Residential = residential
-            };
-            return View(model);
+            return NotFound();
         }
-
-
     }
 }
